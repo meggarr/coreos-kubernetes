@@ -84,6 +84,21 @@ function init_flannel {
 }
 
 function init_templates {
+    local TEMPLATE=/etc/systemd/system/kubelet.service.d/50-proxy.conf
+    if [ ! -f $TEMPLATE ]; then
+        echo "TEMPLATE: $TEMPLATE"
+        mkdir -p $(dirname $TEMPLATE)
+        cat << EOF > $TEMPLATE
+[Service]
+Environment=http_proxy=http://172.29.1.8:3128/
+Environment=https_proxy=http://172.29.1.8:3128/
+Environment=no_proxy=localhost,127.0.0.1,172.0.0.1/8,10.0.0.1/8
+Environment=HTTP_PROXY=http://172.29.1.8:3128/
+Environment=HTTPS_PROXY=http://172.29.1.8:3128/
+Environment=NO_PROXY=localhost,127.0.0.1,172.0.0.1/8,10.0.0.1/8
+EOF
+    fi
+
     local TEMPLATE=/etc/systemd/system/kubelet.service
     if [ ! -f $TEMPLATE ]; then
         echo "TEMPLATE: $TEMPLATE"
@@ -778,6 +793,21 @@ EOF
         cat << EOF > $TEMPLATE
 [Service]
 ExecStartPre=/usr/bin/ln -sf /etc/flannel/options.env /run/flannel/options.env
+EOF
+    fi
+
+    local TEMPLATE=/etc/systemd/system/flanneld.service.d/50-proxy.conf
+    if [ ! -f $TEMPLATE ]; then
+        echo "TEMPLATE: $TEMPLATE"
+        mkdir -p $(dirname $TEMPLATE)
+        cat << EOF > $TEMPLATE
+[Service]
+Environment=http_proxy=http://172.29.1.8:3128/
+Environment=https_proxy=http://172.29.1.8:3128/
+Environment=no_proxy=localhost,127.0.0.1,172.0.0.1/8,10.0.0.1/8
+Environment=HTTP_PROXY=http://172.29.1.8:3128/
+Environment=HTTPS_PROXY=http://172.29.1.8:3128/
+Environment=NO_PROXY=localhost,127.0.0.1,172.0.0.1/8,10.0.0.1/8
 EOF
     fi
 
