@@ -33,6 +33,18 @@ ENV_FILE=/run/coreos-kubernetes/options.env
 function init_config {
     local REQUIRED=( 'ADVERTISE_IP' 'ETCD_ENDPOINTS' 'CONTROLLER_ENDPOINT' 'DNS_SERVICE_IP' 'K8S_VER' 'HYPERKUBE_IMAGE_REPO' 'USE_CALICO' )
 
+    local NOW=$(date +%s)
+    local TIMEOUT=$(( NOW + 300 ))
+
+    # just block until vagrant provsion is done
+    while [ ! -f $ENV_FILE ]; do
+        if [[ $TIMEOUT -lt $(date +%s) ]]; then
+            echo "Environement file is missing $ENV_FILE"
+            break
+        fi
+        sleep 0.1
+    done
+
     if [ -f $ENV_FILE ]; then
         export $(cat $ENV_FILE | xargs)
     fi
